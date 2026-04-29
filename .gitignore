@@ -84,7 +84,9 @@ sogou-weixin-mcp-server/
 # Local-only experiments / notes not part of the portfolio repo
 .workbuddy/
 copilot/
-docs/
+docs/*
+!docs/ARCHITECTURE.md
+!docs/ROADMAP.md
 .claude/skills/huashu-nuwa/
 skills-lock.json
 refactored_backtest/
