@@ -78,8 +78,23 @@ vlm_reader.py
 # Embedded repos / MCP servers
 sogou-weixin-mcp-server/
 
-
-
-
 # Ignore Smart Environment folder
 .smart-env
+
+# Local-only experiments / notes not part of the portfolio repo
+.workbuddy/
+copilot/
+docs/
+.claude/skills/huashu-nuwa/
+skills-lock.json
+refactored_backtest/
+webclipper/
+googl-*.md
+ralph-task.md
+未命名*
+investor-wiki/Untitled.md
+investor-wiki/findings.md
+investor-wiki/scripts/
+investor-wiki/wiki/ENVISION.md
+investor-wiki/wiki/_log.md
+investor-wiki/wiki/_nav.md
