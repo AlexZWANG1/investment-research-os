@@ -1,184 +1,153 @@
 # Augur Roadmap
 
-Augur is currently an early reference projection of a larger product thesis: AI should not only answer questions; it should help humans supervise, branch, and replay the way thinking develops over time.
-
-The roadmap is organized around that thesis.
+This roadmap keeps the project grounded: each step should make the UI easier to run, inspect, or extend.
 
 ## Near Term
 
-### 1. Clean Public Demo State
+### 1. Public Demo Dataset
 
-Create a small public dataset that can ship with the repository.
+Ship a small non-private dataset with the repository.
 
-Goal:
+Deliverables:
 
-- demonstrate raw -> source -> signal -> diary -> replay without private data
-- keep the example manually inspectable
-- show both graph view and run diary
+- 10-20 public raw items
+- generated source nodes
+- generated signal nodes
+- one run log with diary entries
+- one semantic layout file
 
-### 2. Externalized Thinking Diary
+Success criteria:
 
-Make the reasoning diary a first-class surface.
+- a reviewer can clone the repo and see a non-empty graph
+- every visible node can be traced back to a local markdown file
+- no private research material is included
 
-Each run should show:
+### 2. Documented Data Contract
 
-- every source the AI read
-- what it noticed in that source
-- why the observation was interesting
-- which node was created or changed
-- how the step connects to the next one
+Replace implicit `data.js` assumptions with a documented contract.
 
-This diary should be readable in the left rail and replayable in the timeline.
-
-### 3. Node Contract
-
-Document a minimal node contract that does not overfit to investment research.
-
-Required node fields:
-
-- id
-- type
-- content
-- origin
-- parents
-- run_id
-- status
-
-Source and signal remain typed nodes, but the schema should also allow question, contradiction, fork, diary step, pinned insight, and community nodes.
-
-### 4. Live State API
-
-Move the UI away from mandatory static compilation.
-
-Target flow:
+Target files:
 
 ```text
-wiki/log state -> live state API -> Augur renderer
+nodes.json
+edges.json
+communities.json
+runs.json
+layout.json
 ```
 
-Static `data.js` should remain only as a fallback snapshot for demos.
+`data.js` can remain as a bundled fallback, but the renderer should be able to consume the cleaner contract.
+
+### 3. Run Diary Panel
+
+Make run diaries a first-class UI surface.
+
+Required behavior:
+
+- left rail shows the current run
+- each diary step links to the source or node it changed
+- selecting a step highlights the relevant graph objects
+- replay uses causal order instead of only timestamp order
 
 ## Mid Term
 
-### 5. Fork Runtime
+### 4. State Builder
 
-Forks are the key interaction primitive for serious thinking.
+Create one state builder responsible for converting markdown wiki objects into renderer-ready JSON.
 
-A fork should:
+Responsibilities:
 
-- preserve parent context
-- isolate assumptions
-- allow a branch to grow independently
-- keep a link back to the parent line of thought
-- support comparison between competing branches
+- parse source pages
+- parse signal pages
+- parse run logs
+- validate required fields
+- attach semantic layout when available
+- emit one state payload
 
-This is how Augur moves from a graph viewer to an actual thinking sandbox.
+This should reduce the need for ad hoc data generation.
 
-### 6. Scene / State JSON
+### 5. Semantic Layout Pipeline
 
-AI should not emit raw frontend code.
+Make semantic layout reproducible.
 
-Instead, it should emit structured scene/state JSON:
+Requirements:
 
-```text
-nodes
-relations
-communities
-diary_steps
-timeline_events
-focus
-pinned_items
-layout_hints
+- stable node ids
+- cached embeddings
+- deterministic coordinates for unchanged nodes
+- fallback layout when embeddings are missing
+- visual diff when layout changes significantly
+
+### 6. Fork Runtime
+
+Add a real fork model.
+
+A fork should store:
+
+- parent run id
+- inherited nodes
+- changed assumptions
+- new nodes
+- comparison back to parent
+
+The goal is to compare alternate reasoning paths without polluting the main graph.
+
+### 7. Scene / State JSON
+
+Define a compact schema for AI-produced UI state.
+
+The AI should emit structured objects:
+
+```json
+{
+  "focus": "",
+  "nodes": [],
+  "edges": [],
+  "diary_steps": [],
+  "timeline_events": [],
+  "layout_hints": []
+}
 ```
 
-The renderer can then project that state into graph, feed, replay, mobile cards, or other views.
-
-### 7. Causal Replay
-
-A run should be replayable as a causal sequence:
-
-1. read source
-2. notice observation
-3. create or update node
-4. connect dots across sources
-5. form or revise signal
-6. expose contradiction
-7. update focus
-8. suggest next branch or fork
-
-The user should be able to scrub the timeline and see which nodes appeared, changed, or became important at each step.
-
-### 8. Semantic Layout
-
-Node position should be meaningful.
-
-The graph should combine:
-
-- embedding proximity
-- explicit relation edges
-- AI-generated communities
-- run-time causal order
-- pinned node stability
-
-This prevents the graph from becoming either a random force layout or a rigid manually curated ontology.
+The front-end should render this state rather than asking the AI to generate raw UI code.
 
 ## Long Term
 
-### 9. Generalized Thinking Substrate
+### 8. Multi-Projection Renderer
 
-The long-term direction is a persistent reasoning layer above ordinary memory.
+Render the same state as multiple views:
 
-Ordinary memory remembers facts. Augur should preserve the structure of thought:
-
-- why a node exists
-- what created it
-- what contradicted it
-- what changed it
-- which branch it belongs to
-- whether it should survive across sessions
-
-This is the real meaning of Supervised Thinking.
-
-### 10. Projection Ecosystem
-
-The same substrate should support multiple projections:
-
-- research graph
-- daily thought feed
+- graph
+- feed
+- timeline
 - mobile replay
-- strategy memo
-- decision table
-- fork comparison
-- product planning canvas
-- literature review map
+- memo
+- comparison table
 
-The UI becomes a projection of thinking, not the source of truth.
+This tests whether Augur is truly state-first instead of graph-only.
 
-### 11. Human-AI Review Loop
+### 9. Review and Correction Loop
 
-The final product direction is a review loop where the human can:
+Add controls for human review:
 
-- approve or reject promoted nodes
-- keep or archive insights
-- challenge AI-generated relations
-- ask why two nodes are connected
+- keep / archive a node
+- challenge a relation
+- promote a source observation into a signal
 - fork from a disputed assumption
-- force a replay from a different framing
+- mark a contradiction as material or irrelevant
 
-This turns AI output from a black-box answer into an inspectable, corrigible, and evolving reasoning process.
+These actions should write back into the state model.
 
-### 12. Cross-Domain Templates
+### 10. Cross-Domain Templates
 
-Investment research is only the first stress test.
+Test the same architecture outside investment research.
 
-The same architecture should support:
+Candidate templates:
 
 - product strategy
-- technical architecture research
+- technical architecture review
+- academic literature review
 - legal case analysis
-- medical literature review
 - policy research
-- academic synthesis
-- personal knowledge work
 
-Each domain can define its own vocabulary, but the substrate stays the same: nodes, provenance, relations, deltas, forks, and replay.
+Each template can define its own labels, but should reuse the same core state model: nodes, edges, provenance, runs, diary, layout, replay.
