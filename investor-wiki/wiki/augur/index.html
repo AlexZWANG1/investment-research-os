@@ -1,0 +1,620 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Augur · 占</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400&family=JetBrains+Mono:wght@400;500;600&family=Noto+Serif+SC:wght@400;500&family=Noto+Sans+SC:wght@400;500&display=swap" rel="stylesheet">
+
+  <script src="https://unpkg.com/vis-network@9.1.9/standalone/umd/vis-network.min.js"></script>
+
+  <link rel="stylesheet" href="styles.css?v=17">
+</head>
+<body>
+
+<template id="__bundler_thumbnail">
+  <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+    <rect width="400" height="400" fill="#f5f1e8"/>
+    <g transform="translate(200 200)">
+      <circle r="120" fill="none" stroke="#c9b88a" stroke-width="1" opacity="0.5"/>
+      <circle r="80" fill="none" stroke="#c9b88a" stroke-width="1" opacity="0.5"/>
+      <circle cx="-60" cy="-30" r="22" fill="#8b6f47"/>
+      <circle cx="50" cy="-40" r="28" fill="#c9885b"/>
+      <circle cx="30" cy="60" r="20" fill="#7a8b5f"/>
+      <circle cx="-40" cy="50" r="16" fill="#a85c3e"/>
+      <line x1="-60" y1="-30" x2="50" y2="-40" stroke="#333" stroke-width="1.2" opacity="0.6"/>
+      <line x1="50" y1="-40" x2="30" y2="60" stroke="#333" stroke-width="1.2" opacity="0.6"/>
+      <line x1="-60" y1="-30" x2="-40" y2="50" stroke="#333" stroke-width="1.2" opacity="0.6"/>
+      <line x1="30" y1="60" x2="-40" y2="50" stroke="#c83c28" stroke-width="1.2" stroke-dasharray="5 4" opacity="0.8"/>
+      <text y="130" text-anchor="middle" font-family="serif" font-size="28" fill="#3a3320" font-style="italic">Augur · 占</text>
+    </g>
+  </svg>
+</template>
+
+<div class="app">
+
+  <!-- ─────── TOPBAR ─────── -->
+  <header class="topbar">
+    <div class="brand" title="Augur · 占">
+      <div class="brand-logo">
+        <!-- Augur · 占 mini-logo: 鸟 stipple + indigo 主干 + 金色 signal halo
+             致敬 brand poster 的"文档碎片→星座→signal"演化 -->
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <g fill="currentColor" opacity="0.35">
+            <circle cx="2.5" cy="9" r="0.4"/>
+            <circle cx="3.2" cy="13" r="0.35"/>
+            <circle cx="2" cy="17" r="0.3"/>
+            <circle cx="4" cy="7" r="0.28"/>
+            <circle cx="4.5" cy="20" r="0.32"/>
+            <circle cx="5.8" cy="11" r="0.45"/>
+          </g>
+          <g fill="currentColor">
+            <circle cx="10" cy="9" r="0.55"/>
+            <circle cx="11.2" cy="8.2" r="0.4"/>
+            <circle cx="9" cy="11.5" r="0.7"/>
+            <circle cx="10.5" cy="12" r="0.55"/>
+            <circle cx="8.5" cy="13.5" r="0.6"/>
+            <circle cx="10" cy="14.5" r="0.5"/>
+            <circle cx="6.5" cy="10" r="0.45"/>
+            <circle cx="7.5" cy="12" r="0.5"/>
+            <circle cx="6" cy="14" r="0.4"/>
+            <circle cx="9" cy="17" r="0.4"/>
+            <circle cx="10.5" cy="18" r="0.35"/>
+          </g>
+          <g stroke="currentColor" stroke-width="0.55" stroke-linecap="round" opacity="0.6" fill="none">
+            <line x1="12" y1="10" x2="19" y2="7.5"/>
+            <line x1="12.5" y1="13" x2="21" y2="14"/>
+            <line x1="12" y1="16" x2="19" y2="20"/>
+          </g>
+          <g>
+            <circle cx="19" cy="7.5" r="2" fill="#D4A574" opacity="0.22"/>
+            <circle cx="21" cy="14"  r="2" fill="#D4A574" opacity="0.22"/>
+            <circle cx="19" cy="20"  r="2" fill="#D4A574" opacity="0.22"/>
+            <circle cx="19" cy="7.5" r="0.95" fill="#D4A574"/>
+            <circle cx="21" cy="14"  r="0.95" fill="#D4A574"/>
+            <circle cx="19" cy="20"  r="0.95" fill="#D4A574"/>
+          </g>
+        </svg>
+      </div>
+      <div>
+        <span class="brand-name">Augur</span>
+        <span class="brand-dot">·</span>
+        <span class="brand-zh">占</span>
+      </div>
+    </div>
+
+    <label class="topbar-search">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg>
+      <input placeholder="Search signals, sources, themes…" />
+      <kbd>⌘K</kbd>
+    </label>
+
+    <div class="topbar-spacer"></div>
+
+    <div class="time-toggle" role="tablist">
+      <button data-w="today">Today</button>
+      <button data-w="week">Week</button>
+      <button data-w="month" class="active">Month</button>
+    </div>
+
+    <div class="topbar-actions">
+      <button class="icon-btn" id="tweaks-toggle" title="Tweaks">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="4" y1="7" x2="12" y2="7"/><line x1="16" y1="7" x2="20" y2="7"/><circle cx="14" cy="7" r="2"/><line x1="4" y1="17" x2="8" y2="17"/><line x1="12" y1="17" x2="20" y2="17"/><circle cx="10" cy="17" r="2"/></svg>
+      </button>
+      <button class="icon-btn" title="Re-run graphify">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15A9 9 0 1 1 5.64 5.64L23 10"/></svg>
+      </button>
+      <button class="icon-btn" title="Export">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 14v5a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5"/><polyline points="16 9 12 5 8 9"/><line x1="12" y1="5" x2="12" y2="16"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="main">
+
+    <!-- ─────── LEFT · JOURNAL TIMELINE ─────── -->
+    <aside class="pulse">
+      <div class="pulse-inner">
+      <div id="pulse-list" class="pulse-list"></div>
+      <div class="pulse-footer">
+        <span id="pulse-count">—</span>
+        <span>T — MON 08:42</span>
+      </div>
+      </div>
+    </aside>
+
+    <!-- ─────── CENTER · CANVAS ─────── -->
+    <main class="canvas">
+      <div id="graph"></div>
+      <!-- 水墨 SVG overlay — 节点用 feTurbulence + feDisplacementMap 渲染水墨晕染。
+           pointer-events:none 让交互穿透到 vis canvas。inline script 同步坐标。
+           默认 display:none(CSS),Settings 切到"水墨"才 show。 -->
+      <svg id="ink-overlay" style="position:absolute; inset:0; pointer-events:none; z-index:1;" width="100%" height="100%">
+        <defs id="ink-defs"></defs>
+        <g id="ink-nodes"></g>
+      </svg>
+      <div id="badge-layer" style="position:absolute; inset:0; pointer-events:none; z-index:2;"></div>
+      <div id="arrive-layer" style="position:absolute; inset:0; pointer-events:none; z-index:2;"></div>
+      <div id="focus-ring" class="focus-ring"></div>
+
+      <div class="timeline" id="timeline">
+        <button class="timeline-play" id="tl-play" title="Play / pause">
+          <svg id="tl-play-icon" width="12" height="12" viewBox="0 0 12 12"><polygon points="3,2 10,6 3,10"/></svg>
+        </button>
+        <div class="timeline-date">
+          <span id="tl-date">Mar 12 2026</span>
+          <span class="day" id="tl-ago">40 days ago</span>
+        </div>
+        <div class="timeline-track" id="tl-track">
+          <div class="timeline-track-line"></div>
+          <div class="timeline-track-fill" id="tl-fill"></div>
+          <div class="timeline-ticks" id="tl-ticks"></div>
+          <div class="timeline-thumb" id="tl-thumb"></div>
+          <div class="timeline-event" id="tl-event"></div>
+        </div>
+        <div class="timeline-speed">
+          <button data-speed="1">1×</button>
+          <button data-speed="2" class="active">2×</button>
+          <button data-speed="4">4×</button>
+        </div>
+        <button class="timeline-close" id="tl-close" title="close">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <div class="canvas-chrome-tl">
+        <div class="canvas-title">
+          <strong>Thinking network</strong> — 10 signals · 60 sources · 5 communities
+        </div>
+      </div>
+
+      <div class="canvas-chrome-bl">
+        <span><strong>457</strong> edges</span>
+        <span>Leiden <strong>resolution 1.2</strong></span>
+        <span>Physics <strong>frozen</strong></span>
+      </div>
+
+      <div class="canvas-chrome-br">
+        <button class="canvas-btn" id="btn-timeline">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>
+          Timeline
+        </button>
+        <button class="canvas-btn" id="btn-refit">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h7v2H5v5H3zM21 3h-7v2h5v5h2zM3 21h7v-2H5v-5H3zM21 21h-7v-2h5v-5h2z"/></svg>
+          Fit
+        </button>
+      </div>
+
+      <!-- Collapse handles -->
+      <div class="collapse-handle left" id="collapse-left" title="Toggle Daily Pulse">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 6 9 12 15 18"/></svg>
+      </div>
+      <div class="collapse-handle right" id="collapse-right" title="Toggle Legend">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 6 15 12 9 18"/></svg>
+      </div>
+    </main>
+
+    <!-- ─────── RIGHT · COMMUNITIES + SIGNAL LIST ─────── -->
+    <aside class="legend">
+      <div class="legend-inner">
+        <div class="legend-section">
+          <div class="sec-head">
+            <h3>Communities</h3>
+            <button class="icon-btn mini" id="settings-open" title="Settings · 图例 · ENVISION">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            </button>
+          </div>
+          <div id="legend-communities"></div>
+        </div>
+
+        <div class="legend-section signal-list-section">
+          <div class="sec-head">
+            <h3>Signals</h3>
+            <span class="sec-head-count" id="signal-count">0</span>
+          </div>
+          <div id="signal-list"></div>
+        </div>
+
+        <div class="legend-section footer-sec" style="flex:0; border-bottom:none; margin-top:auto;">
+          <div style="font-family:var(--f-mono); font-size:10px; color:var(--ink-4); letter-spacing:0.04em; line-height:1.6">
+            AUGUR · v0.9<br>
+            <span style="color:var(--accent-ink)">● live — obsidian</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+  </div>
+</div>
+
+<!-- hover card -->
+<div id="hovercard" class="hovercard"></div>
+
+<!-- settings drawer（含 ENVISION 编辑器 + 图例说明 + tweaks）-->
+<div class="tweaks" id="tweaks">
+  <div class="tweaks-head">
+    <h4>Settings</h4>
+    <button class="icon-btn" id="tweaks-close" title="close">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="tweaks-body">
+
+    <!-- ENVISION —— 真正编辑在 Obsidian，这里只看 + 打开 -->
+    <div class="tweak-section">
+      <div class="tweak-section-head">
+        <h5>ENVISION · 北极星</h5>
+        <span class="tweak-hint">read-only · 编辑在 Obsidian</span>
+      </div>
+      <pre id="envision-preview" class="envision-preview">加载中…</pre>
+      <div class="tweak-footer-row" style="flex-wrap:wrap;gap:8px;margin-top:8px">
+        <span class="tweak-hint" style="flex:1">编辑在 Obsidian 里 → 重跑 <code>generate_augur_data.py</code> 后刷新页面</span>
+        <button class="canvas-btn primary" id="envision-open" title="在 Obsidian 打开 ENVISION.md">在 Obsidian 打开</button>
+      </div>
+    </div>
+
+    <!-- 图例说明（从右栏搬过来） -->
+    <div class="tweak-section">
+      <div class="tweak-section-head"><h5>图例 · Legend</h5></div>
+      <div class="legend-key">
+        <span class="swatch"><span class="node-demo sig"></span></span>
+        <span>Signal — 你在追踪的假说</span>
+      </div>
+      <div class="legend-key">
+        <span class="swatch"><span class="node-demo src"></span></span>
+        <span>Source — 证据（信件、专家访谈、tweet）</span>
+      </div>
+      <div class="legend-key" style="margin-top:6px">
+        <span class="swatch"><span style="display:inline-block;width:14px;height:3px;background:var(--ink-4)"></span></span>
+        <span>实线 — source 支撑 signal</span>
+      </div>
+      <div class="legend-key">
+        <span class="swatch"><span style="display:inline-block;width:14px;height:1px;border-top:1.5px dashed var(--ink-4)"></span></span>
+        <span>虚线红橙 — signal ↔ signal 张力</span>
+      </div>
+      <div class="legend-key" style="align-items:center;gap:12px;margin-top:10px">
+        <span style="display:inline-flex;align-items:baseline;gap:5px;width:56px;justify-content:center">
+          <span style="width:8px;height:8px;border-radius:50%;background:var(--accent);border:1.5px solid var(--accent-ink);display:inline-block"></span>
+          <span style="width:14px;height:14px;border-radius:50%;background:var(--accent);border:1.5px solid var(--accent-ink);display:inline-block"></span>
+          <span style="width:20px;height:20px;border-radius:50%;background:var(--accent);border:1.5px solid var(--accent-ink);display:inline-block"></span>
+        </span>
+        <span style="font-size:11px">直径 — <em>conviction</em></span>
+      </div>
+      <div class="legend-key" style="align-items:center;gap:12px">
+        <span style="display:inline-flex;align-items:center;gap:5px;width:56px;justify-content:center">
+          <span style="width:14px;height:14px;border-radius:50%;background:var(--accent);border:1px solid var(--accent-ink);display:inline-block"></span>
+          <span style="width:14px;height:14px;border-radius:50%;background:var(--accent);border:3px solid var(--accent-ink);display:inline-block"></span>
+        </span>
+        <span style="font-size:11px">描边 — <em>支撑 source 数</em></span>
+      </div>
+      <div class="legend-key" style="align-items:center;gap:12px">
+        <span style="display:inline-flex;align-items:center;gap:5px;width:56px;justify-content:center">
+          <span style="width:14px;height:14px;border-radius:50%;background:var(--accent);opacity:1;display:inline-block"></span>
+          <span style="width:14px;height:14px;border-radius:50%;background:var(--accent);opacity:0.5;display:inline-block"></span>
+        </span>
+        <span style="font-size:11px">饱和度 — <em>新鲜度</em></span>
+      </div>
+    </div>
+
+    <!-- View toggles -->
+    <div class="tweak-section">
+      <div class="tweak-section-head"><h5>视图</h5></div>
+      <div class="toggle-row">
+        <span>显示 sources</span>
+        <div class="toggle on" id="toggle-sources"></div>
+      </div>
+      <div class="tweak-row">
+        <div class="tweak-label">节点风格</div>
+        <div class="tweak-seg" data-tweak="node-style">
+          <button data-val="notion" class="active">Notion</button>
+          <button data-val="ink">水墨</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Theme tweaks -->
+    <div class="tweak-section">
+      <div class="tweak-section-head"><h5>外观</h5></div>
+      <div class="tweak-row">
+        <div class="tweak-label">主色</div>
+        <div class="tweak-seg" data-tweak="palette">
+          <button data-val="indigo" class="active">Indigo</button>
+          <button data-val="forest">Forest</button>
+          <button data-val="ochre">Ochre</button>
+        </div>
+      </div>
+      <div class="tweak-row">
+        <div class="tweak-label">主题</div>
+        <div class="tweak-seg" data-tweak="theme">
+          <button data-val="light" class="active">Light</button>
+          <button data-val="dark">Dark</button>
+        </div>
+      </div>
+      <div class="tweak-row">
+        <div class="tweak-label">日记位置</div>
+        <div class="tweak-seg" data-tweak="placement">
+          <button data-val="left" class="active">Left rail</button>
+          <button data-val="floating">Floating</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  //   "accent": "indigo",
+  //   "theme": "light",
+  //   "pulsePlacement": "left"
+  // }/*EDITMODE-END*/
+</script>
+
+<script src="data.js?v=7"></script>
+<script src="semantic_layout.js?v=7"></script>
+<script src="app.js?v=38"></script>
+
+<script>
+  // Fit button
+  document.getElementById('btn-refit').addEventListener('click', () => {
+    if (window.__augurNetwork) {
+      window.__augurNetwork.fit({ animation: { duration: 500, easingFunction: 'easeInOutCubic' } });
+    }
+  });
+
+  // ═══════════════════════════════════════════════════════════════
+  // Ink Overlay (Path 3) — SVG feTurbulence + feDisplacementMap 真水墨节点
+  // 默认 .canvas 没 ink-mode class → SVG display:none。
+  // Settings 切到"水墨"才显示。
+  // ═══════════════════════════════════════════════════════════════
+  (function setupInkOverlay() {
+    const NS = 'http://www.w3.org/2000/svg';
+    let nodesGroup = null;
+    let defsEl = null;
+    let raf = null;
+
+    // V2 水墨:radial gradient 主体晕开 + 轻 displacement 微纹理 + 中心 anchor dot
+    function ensureFilters() {
+      if (!defsEl) defsEl = document.getElementById('ink-defs');
+      if (!defsEl || defsEl.children.length > 0) return;
+      const COMMS = (window.AUGUR_DATA && window.AUGUR_DATA.COMMUNITIES) || {};
+      const all = Object.entries(COMMS).map(([cid, c]) => [cid, c.color || '#3D3D40']);
+      all.push(['source-default', '#5A5A60']);
+      let seed = 1;
+      all.forEach(([cid, color]) => {
+        const grad = document.createElementNS(NS, 'radialGradient');
+        grad.id = `ink-grad-${cid}`;
+        grad.innerHTML = `
+          <stop offset="0%" stop-color="${color}" stop-opacity="0.85"/>
+          <stop offset="28%" stop-color="${color}" stop-opacity="0.52"/>
+          <stop offset="62%" stop-color="${color}" stop-opacity="0.18"/>
+          <stop offset="100%" stop-color="${color}" stop-opacity="0"/>
+        `;
+        defsEl.appendChild(grad);
+        const filter = document.createElementNS(NS, 'filter');
+        filter.id = `ink-tex-${cid}`;
+        filter.setAttribute('x', '-30%');
+        filter.setAttribute('y', '-30%');
+        filter.setAttribute('width', '160%');
+        filter.setAttribute('height', '160%');
+        filter.innerHTML = `
+          <feTurbulence type="fractalNoise" baseFrequency="0.82" numOctaves="2" seed="${seed * 11}" stitchTiles="stitch"/>
+          <feDisplacementMap in="SourceGraphic" scale="3.5"/>
+        `;
+        defsEl.appendChild(filter);
+        seed++;
+      });
+    }
+
+    function getNodeFillColor(node) {
+      const c = node && node.color;
+      if (typeof c === 'string') return c;
+      if (c && typeof c === 'object') return c.background || c.color || '#888';
+      return '#888';
+    }
+
+    function syncNodes() {
+      const network = window.__augurNetwork;
+      if (!network || !nodesGroup) return;
+      const canvas = document.querySelector('.canvas');
+      if (!canvas || !canvas.classList.contains('ink-mode')) return;
+      const nodesDs = network.body && network.body.data && network.body.data.nodes;
+      if (!nodesDs) return;
+      const ids = nodesDs.getIds();
+      let scale = 1;
+      try { scale = network.getScale() || 1; } catch (e) { /* ignore */ }
+
+      const existing = new Map();
+      Array.from(nodesGroup.children).forEach((g) => existing.set(g.dataset.id, g));
+
+      const seen = new Set();
+      ids.forEach((id) => {
+        const node = nodesDs.get(id);
+        if (!node) return;
+        const sid = String(id);
+        seen.add(sid);
+        let group = existing.get(sid);
+        if (node.hidden) {
+          if (group) group.style.display = 'none';
+          return;
+        }
+        let pos;
+        try { pos = network.getPositions([id])[id]; } catch (e) { return; }
+        if (!pos) return;
+        const dom = network.canvasToDOM(pos);
+        const baseR = (node.size || 8) * scale;
+        const isSignal = node._type === 'signal' || sid.startsWith('sig-');
+        const community = node._data && node._data.community;
+        const cidKey = (isSignal && community) ? community : 'source-default';
+        const fill = getNodeFillColor(node);
+        const blotR = isSignal ? baseR * 4.0 : baseR * 2.5;
+        const anchorR = isSignal ? Math.max(2, baseR * 0.45) : Math.max(1.5, baseR * 0.55);
+
+        if (!group) {
+          group = document.createElementNS(NS, 'g');
+          group.dataset.id = sid;
+          const blot = document.createElementNS(NS, 'circle');
+          blot.classList.add('ink-blot');
+          group.appendChild(blot);
+          const anchor = document.createElementNS(NS, 'circle');
+          anchor.classList.add('ink-anchor');
+          group.appendChild(anchor);
+          nodesGroup.appendChild(group);
+        }
+        group.style.display = '';
+        const blot = group.firstChild;
+        const anchor = group.lastChild;
+
+        blot.setAttribute('cx', dom.x);
+        blot.setAttribute('cy', dom.y);
+        blot.setAttribute('r', blotR);
+        const wantFill = `url(#ink-grad-${cidKey})`;
+        const wantFilter = `url(#ink-tex-${cidKey})`;
+        if (blot.getAttribute('fill') !== wantFill) blot.setAttribute('fill', wantFill);
+        if (blot.getAttribute('filter') !== wantFilter) blot.setAttribute('filter', wantFilter);
+
+        anchor.setAttribute('cx', dom.x);
+        anchor.setAttribute('cy', dom.y);
+        anchor.setAttribute('r', anchorR);
+        anchor.setAttribute('fill', fill);
+        anchor.setAttribute('opacity', isSignal ? '0.92' : '0.85');
+      });
+      existing.forEach((g, id) => {
+        if (!seen.has(id)) g.style.display = 'none';
+      });
+    }
+
+    function scheduleSync() {
+      if (raf != null) return;
+      raf = requestAnimationFrame(() => { raf = null; syncNodes(); });
+    }
+
+    function bootstrap(attempt) {
+      attempt = attempt || 0;
+      if (window.__augurNetwork && window.AUGUR_DATA) {
+        nodesGroup = document.getElementById('ink-nodes');
+        ensureFilters();
+        const network = window.__augurNetwork;
+        network.on('afterDrawing', scheduleSync);
+        network.on('zoom', scheduleSync);
+        network.on('dragging', scheduleSync);
+        network.on('dragEnd', scheduleSync);
+        network.on('stabilizationIterationsDone', scheduleSync);
+        try { network.body.data.nodes.on('*', scheduleSync); } catch (e) { /* ignore */ }
+        syncNodes();
+      } else if (attempt < 120) {
+        setTimeout(() => bootstrap(attempt + 1), 50);
+      }
+    }
+    if (document.readyState === 'complete') bootstrap();
+    else window.addEventListener('load', bootstrap);
+  })();
+
+  // ═══════════════════════════════════════════════════════════════
+  // Node Style Toggle — Notion / 水墨 二选一,localStorage 持久,默认 Notion
+  // ═══════════════════════════════════════════════════════════════
+  (function setupNodeStyleToggle() {
+    const KEY = 'augur:node-style';
+    function getCanvas() { return document.querySelector('.canvas'); }
+    function apply(style) {
+      const canvas = getCanvas();
+      if (!canvas) return;
+      if (style === 'ink') canvas.classList.add('ink-mode');
+      else canvas.classList.remove('ink-mode');
+      document.querySelectorAll('[data-tweak="node-style"] button').forEach((btn) => {
+        btn.classList.toggle('active', btn.dataset.val === style);
+      });
+      // 切换风格后,触发 ink overlay 同步(如果切到 ink)
+      if (style === 'ink' && window.__augurNetwork) {
+        try { window.__augurNetwork.redraw(); } catch (e) { /* ignore */ }
+      }
+    }
+    function init() {
+      const saved = localStorage.getItem(KEY) || 'notion';
+      apply(saved);
+      document.querySelectorAll('[data-tweak="node-style"] button').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const v = btn.dataset.val;
+          try { localStorage.setItem(KEY, v); } catch (e) { /* ignore */ }
+          apply(v);
+        });
+      });
+    }
+    if (document.readyState === 'complete') init();
+    else window.addEventListener('load', init);
+  })();
+</script>
+
+<!-- ============ Fork Sidebar (V3 — 主线看 fork 列表 / sandbox 推演入口) ============ -->
+<button id="fork-sidebar-trigger" class="fork-sidebar-trigger" aria-label="open sandbox forks" type="button">
+  <span class="fork-sidebar-icon">🔮</span>
+  <span class="fork-sidebar-label">沙盘</span>
+  <span class="fork-sidebar-count" id="fork-sidebar-count">0</span>
+</button>
+<aside id="fork-sidebar" class="fork-sidebar" aria-hidden="true">
+  <div class="fork-sidebar-backdrop"></div>
+  <div class="fork-sidebar-panel">
+    <header class="fork-sidebar-header">
+      <h3>沙盘推演 · <span id="fork-sidebar-count2">0</span> 个</h3>
+      <button class="fork-sidebar-close" type="button" aria-label="close">×</button>
+    </header>
+    <div id="fork-sidebar-list" class="fork-sidebar-list"></div>
+    <footer class="fork-sidebar-footer">点击 fork 在新窗口打开它的推演动画</footer>
+  </div>
+</aside>
+<script>
+  // Fork sidebar V3 — 独立 IIFE，从 window.AUGUR_FORK_LIST 读数据，不依赖 app.js 内部状态。
+  (function(){
+    const list = window.AUGUR_FORK_LIST || [];
+    const trigger = document.getElementById('fork-sidebar-trigger');
+    const sidebar = document.getElementById('fork-sidebar');
+    if (!trigger || !sidebar) return;
+    if (!list || !list.length) {
+      trigger.style.display = 'none';
+      return;
+    }
+    const countEl = document.getElementById('fork-sidebar-count');
+    const count2El = document.getElementById('fork-sidebar-count2');
+    const listEl = document.getElementById('fork-sidebar-list');
+    countEl.textContent = list.length;
+    count2El.textContent = list.length;
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+
+    listEl.innerHTML = list.map((f) => `
+      <a class="fork-card" href="${f.rel_url}" target="_blank" rel="noopener">
+        <div class="fork-card-question">${escapeHtml(f.question || f.fork_id)}</div>
+        <div class="fork-card-meta">
+          <span class="fork-card-date">📅 ${escapeHtml(f.created || '—')}</span>
+          <span class="fork-card-stat">📍 ${f.signals_count || 0} signal</span>
+          <span class="fork-card-stat">📑 ${f.sources_count || 0} source</span>
+          ${f.has_animation ? `<span class="fork-card-anim">🎬 ${f.scenes_count} 场</span>` : '<span class="fork-card-static">静态</span>'}
+        </div>
+        ${f.log_summary ? `<div class="fork-card-summary">${escapeHtml(f.log_summary)}</div>` : ''}
+      </a>
+    `).join('');
+
+    function openPanel() {
+      sidebar.classList.add('fork-sidebar-open');
+      sidebar.setAttribute('aria-hidden', 'false');
+    }
+    function closePanel() {
+      sidebar.classList.remove('fork-sidebar-open');
+      sidebar.setAttribute('aria-hidden', 'true');
+    }
+    trigger.addEventListener('click', openPanel);
+    sidebar.querySelector('.fork-sidebar-close').addEventListener('click', closePanel);
+    sidebar.querySelector('.fork-sidebar-backdrop').addEventListener('click', closePanel);
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && sidebar.classList.contains('fork-sidebar-open')) closePanel();
+    });
+  })();
+</script>
+
+</body>
+</html>

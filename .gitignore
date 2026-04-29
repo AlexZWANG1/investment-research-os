@@ -1,0 +1,85 @@
+# Large binary files (too large for git)
+investor-wiki/raw/investor-letters/
+*.rar
+*.zip
+*.7z
+
+# macOS
+.DS_Store
+
+# Obsidian local config (theme/plugins/UI, per-machine)
+investor-wiki/.obsidian/
+.obsidian/
+
+# Local index databases (rebuild on each machine)
+*.sqlite
+*.sqlite-journal
+*.db
+*.db-wal
+*.db-shm
+
+# Secrets / local environment
+.env
+.env.*
+*.pem
+*.key
+
+# AI Daily raw (if large)
+AI_Daily/
+
+# Root-level loose PDFs (should be moved to raw/)
+/*.pdf
+
+# Private research data. Keep schema/UI public; keep source material private.
+investor-wiki/raw/**
+!investor-wiki/raw/README.md
+investor-wiki/workspace/**
+!investor-wiki/workspace/README.md
+investor-wiki/wiki/sources/**
+investor-wiki/wiki/signal/**
+!investor-wiki/wiki/signal/README.md
+investor-wiki/wiki/log/**
+investor-wiki/forks/**
+investor-wiki/test-results/**
+investor-wiki/.venv-embed/
+investor-wiki/wiki/augur/.embedding_cache.json
+investor-wiki/wiki/augur/data.js
+investor-wiki/wiki/augur/semantic_layout.js
+investor-wiki/wiki/augur/semantic_layout.json
+investor-wiki/wiki/dashboard.html
+
+# Old intermediate working files (pre-skill era)
+findings/
+evaluations/
+planning.md
+
+# .claude/ — only track skills/, ignore everything else
+.claude/*
+!.claude/skills/
+
+# Local agent runtime copy; .claude/skills is the tracked version.
+.agents/
+
+# Local config
+.mcp.json
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+
+# Misc
+*.bak
+portfolio_analysis.py
+vlm_reader.py
+
+# Embedded repos / MCP servers
+sogou-weixin-mcp-server/
+
+
+
+
+# Ignore Smart Environment folder
+.smart-env
